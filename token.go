@@ -4,6 +4,7 @@ import (
 	"context"
 	"io/ioutil"
 
+	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -17,12 +18,12 @@ type tokenProvider struct {
 func newTokenProvider(credentialsLocation string) (*tokenProvider, error) {
 	jsonKey, err := ioutil.ReadFile(credentialsLocation)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "fcm: failed to read credentials file at: '%s'", credentialsLocation)
 	}
 
 	cfg, err := google.JWTConfigFromJSON(jsonKey, firebaseScope)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "fcm: failed to get JWT config for the firebase.messaging scope")
 	}
 
 	ts := cfg.TokenSource(context.Background())
@@ -36,7 +37,7 @@ func newTokenProvider(credentialsLocation string) (*tokenProvider, error) {
 func (src *tokenProvider) token() (string, error) {
 	token, err := src.tokenSource.Token()
 	if err != nil {
-		return "", err
+		return "", errors.Wrapf(err, "fcm: failed to generate Bearer token")
 	}
 
 	return token.AccessToken, nil

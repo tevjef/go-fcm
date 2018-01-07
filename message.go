@@ -117,7 +117,6 @@ func (msg *Message) Validate() error {
 	}
 
 	if msg.Apns != nil {
-
 		b, err := json.Marshal(msg.Apns.Payload)
 		if err != nil {
 			return err

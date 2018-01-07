@@ -15,10 +15,44 @@ With this library, you:
 
 ## Getting Started
 
-To install fcm, use `go get`:
+## CLI App
 
+### Usage
 
-## Usage
+```bash
+go install github.com/tevjef/go-fcm/cmd/fcm-send
+
+```
+
+```
+NAME:
+   go-fcm - Send messages to devices through Firebase Cloud Messaging.
+
+USAGE:
+   go-fcm [global options]
+
+VERSION:
+   1.0.0
+
+COMMANDS:
+     help, h  Shows a list of commands or help for one command
+
+GLOBAL OPTIONS:
+   --topic value, -t value       The name of the topic to send a message to.
+   --token value, -k value       The device topic or registration id to send a message to.
+   --condition value, -c value   The condition to send a message to, e.g. 'foo' in topics && 'bar' in topics
+   --title value                 The notification title.
+   --body value                  The notification body.
+   --validate-only               Validate the message, but don't send it.
+   --credentials-location value  Location of the Firebase Admin SDK JSON credentials. [$CREDENTIALS_LOCATION]
+   --project-id value            The id of your Firebase project. [$PROJECT_ID]
+   --help, -h                    show help
+   --version, -v                 print the version
+```
+
+## As package
+
+### Usage
 
 ```bash
 go get github.com/tevjef/go-fcm
