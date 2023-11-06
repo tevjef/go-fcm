@@ -12,3 +12,5 @@ _test
 *.prof
 
 example/example
+.idea
+.idea/*
