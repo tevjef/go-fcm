@@ -46,6 +46,28 @@ func NewClient(projectID string, credentialsLocation string, opts ...Option) (*C
 	return c, nil
 }
 
+// NewClientFromBytes creates new Firebase Cloud Messaging Client based on a json service account file credentials file.
+func NewClientFromBytes(projectID string, jsonKey []byte, opts ...Option) (*Client, error) {
+	tp, err := newTokenProviderFromBytes(jsonKey)
+	if err != nil {
+		return nil, err
+	}
+
+	c := &Client{
+		endpoint:      fmt.Sprintf(endpointFormat, projectID),
+		client:        http.DefaultClient,
+		tokenProvider: tp,
+	}
+
+	for _, o := range opts {
+		if err := o(c); err != nil {
+			return nil, err
+		}
+	}
+
+	return c, nil
+}
+
 // Send sends a message to the FCM server.
 func (c *Client) Send(req *SendRequest) (*Message, error) {
 	// validate
