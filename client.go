@@ -2,8 +2,10 @@ package fcm
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
+	"golang.org/x/oauth2"
 	"net/http"
 	"net/http/httputil"
 )
@@ -48,15 +50,10 @@ func NewClient(projectID string, credentialsLocation string, opts ...Option) (*C
 
 // NewClientFromBytes creates new Firebase Cloud Messaging Client based on a json service account file credentials file.
 func NewClientFromBytes(projectID string, jsonKey []byte, opts ...Option) (*Client, error) {
-	tp, err := newTokenProviderFromBytes(jsonKey)
-	if err != nil {
-		return nil, err
-	}
-
 	c := &Client{
-		endpoint:      fmt.Sprintf(endpointFormat, projectID),
-		client:        http.DefaultClient,
-		tokenProvider: tp,
+		endpoint: fmt.Sprintf(endpointFormat, projectID),
+		client:   http.DefaultClient,
+		//tokenProvider: tp,
 	}
 
 	for _, o := range opts {
@@ -64,7 +61,15 @@ func NewClientFromBytes(projectID string, jsonKey []byte, opts ...Option) (*Clie
 			return nil, err
 		}
 	}
-
+	customerTrans := c.client.Transport
+	customerCli := http.DefaultClient
+	customerCli.Transport = customerTrans
+	ctx := context.WithValue(context.Background(), oauth2.HTTPClient, customerCli)
+	tp, err := newTokenProviderFromBytes(ctx, jsonKey)
+	if err != nil {
+		return nil, err
+	}
+	c.tokenProvider = tp
 	return c, nil
 }
 

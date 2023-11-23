@@ -15,7 +15,7 @@ type tokenProvider struct {
 	tokenSource oauth2.TokenSource
 }
 
-func newTokenProviderFromBytes(jsonKey []byte) (*tokenProvider, error) {
+func newTokenProviderFromBytes(ctx context.Context, jsonKey []byte) (*tokenProvider, error) {
 	if len(jsonKey) == 0 {
 		return nil, errors.New("empty")
 	}
@@ -25,7 +25,7 @@ func newTokenProviderFromBytes(jsonKey []byte) (*tokenProvider, error) {
 		return nil, errors.Wrapf(err, "fcm: failed to get JWT config for the firebase.messaging scope")
 	}
 
-	ts := cfg.TokenSource(context.Background())
+	ts := cfg.TokenSource(ctx)
 	return &tokenProvider{
 		tokenSource: ts,
 	}, nil
