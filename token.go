@@ -31,7 +31,7 @@ func newTokenProviderFromBytes(ctx context.Context, jsonKey []byte) (*tokenProvi
 	}, nil
 }
 
-func newTokenProvider(credentialsLocation string) (*tokenProvider, error) {
+func newTokenProvider(ctx context.Context, credentialsLocation string) (*tokenProvider, error) {
 	jsonKey, err := ioutil.ReadFile(credentialsLocation)
 	if err != nil {
 		return nil, errors.Wrapf(err, "fcm: failed to read credentials file at: '%s'", credentialsLocation)
@@ -42,7 +42,7 @@ func newTokenProvider(credentialsLocation string) (*tokenProvider, error) {
 		return nil, errors.Wrapf(err, "fcm: failed to get JWT config for the firebase.messaging scope")
 	}
 
-	ts := cfg.TokenSource(context.Background())
+	ts := cfg.TokenSource(ctx)
 	return &tokenProvider{
 		tokenSource: ts,
 	}, nil

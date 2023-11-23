@@ -28,23 +28,25 @@ type Client struct {
 
 // NewClient creates new Firebase Cloud Messaging Client based on a json service account file credentials file.
 func NewClient(projectID string, credentialsLocation string, opts ...Option) (*Client, error) {
-	tp, err := newTokenProvider(credentialsLocation)
-	if err != nil {
-		return nil, err
-	}
-
 	c := &Client{
-		endpoint:      fmt.Sprintf(endpointFormat, projectID),
-		client:        http.DefaultClient,
-		tokenProvider: tp,
+		endpoint: fmt.Sprintf(endpointFormat, projectID),
+		client:   http.DefaultClient,
+		//tokenProvider: tp,
 	}
-
 	for _, o := range opts {
 		if err := o(c); err != nil {
 			return nil, err
 		}
 	}
-
+	customerCli := &http.Client{
+		Transport: c.client.Transport,
+	}
+	ctx := context.WithValue(context.Background(), oauth2.HTTPClient, customerCli)
+	tp, err := newTokenProvider(ctx, credentialsLocation)
+	if err != nil {
+		return nil, err
+	}
+	c.tokenProvider = tp
 	return c, nil
 }
 
@@ -61,9 +63,9 @@ func NewClientFromBytes(projectID string, jsonKey []byte, opts ...Option) (*Clie
 			return nil, err
 		}
 	}
-	customerTrans := c.client.Transport
-	customerCli := http.DefaultClient
-	customerCli.Transport = customerTrans
+	customerCli := &http.Client{
+		Transport: c.client.Transport,
+	}
 	ctx := context.WithValue(context.Background(), oauth2.HTTPClient, customerCli)
 	tp, err := newTokenProviderFromBytes(ctx, jsonKey)
 	if err != nil {
